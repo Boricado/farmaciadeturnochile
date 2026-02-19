@@ -1,20 +1,17 @@
 'use client'
 
-import { useState, lazy, Suspense } from 'react'
+import { useState } from 'react'
+import { lazy, Suspense } from 'react'
 import { Pill, ListFilter, Map as MapIcon } from 'lucide-react'
 import SearchForm from '@/components/SearchForm'
 import PharmacyCard from '@/components/PharmacyCard'
 import AdBanner from '@/components/AdBanner'
-import { Farmacia } from '@/lib/types'
+import { useBuscarFarmacias } from '@/lib/useMinsal'
 
 const PharmacyMap = lazy(() => import('@/components/PharmacyMap'))
 
-type FarmaciaConDistancia = Farmacia & { distancia?: number }
-
 export default function Home() {
-  const [farmacias, setFarmacias] = useState<FarmaciaConDistancia[]>([])
-  const [loading, setLoading] = useState(false)
-  const [searched, setSearched] = useState(false)
+  const { farmacias, loading, searched, buscar, buscarCercanas } = useBuscarFarmacias()
   const [view, setView] = useState<'lista' | 'mapa'>('lista')
   const [modoGeo, setModoGeo] = useState(false)
 
@@ -25,30 +22,14 @@ export default function Home() {
     day: 'numeric',
   })
 
-  const handleSearch = async (region: string, comuna: string) => {
-    setLoading(true)
-    setSearched(false)
+  const handleSearch = (region: string, comuna: string) => {
     setModoGeo(false)
-
-    const params = new URLSearchParams({ region })
-    if (comuna) params.set('comuna', comuna)
-
-    try {
-      const res = await fetch(`/api/farmacias?${params}`)
-      const data = await res.json()
-      setFarmacias(Array.isArray(data) ? data : [])
-    } catch {
-      setFarmacias([])
-    } finally {
-      setLoading(false)
-      setSearched(true)
-    }
+    buscar(region, comuna || undefined)
   }
 
-  const handleNearby = (data: unknown[]) => {
-    setFarmacias(data as FarmaciaConDistancia[])
+  const handleNearby = (lat: number, lng: number) => {
     setModoGeo(true)
-    setSearched(true)
+    buscarCercanas(lat, lng)
   }
 
   return (
@@ -134,7 +115,7 @@ export default function Home() {
                   <div className="flex flex-col gap-3">
                     {farmacias.map((f, i) => (
                       <div key={f.local_id}>
-                        <PharmacyCard farmacia={f} distancia={f.distancia} />
+                        <PharmacyCard farmacia={f} distancia={'distancia' in f ? (f as { distancia: number }).distancia : undefined} />
                         {(i + 1) % 5 === 0 && i < farmacias.length - 1 && (
                           <div className="mt-3">
                             <AdBanner slot="SLOT_MEDIO" format="rectangle" />
