@@ -8,7 +8,13 @@ interface PharmacyCardProps {
 
 function formatHora(hora: string): string {
   if (!hora) return '--'
-  return hora.slice(0, 5) // "HH:MM"
+  return hora.slice(0, 5)
+}
+
+function es24Horas(apertura: string, cierre: string): boolean {
+  if (!apertura || !cierre) return false
+  // Cierre menor que apertura significa que cruza la medianoche (turno nocturno 24h)
+  return cierre < apertura
 }
 
 export default function PharmacyCard({ farmacia, distancia }: PharmacyCardProps) {
@@ -18,6 +24,7 @@ export default function PharmacyCard({ farmacia, distancia }: PharmacyCardProps)
 
   const apertura = formatHora(farmacia.funcionamiento_hora_apertura)
   const cierre = formatHora(farmacia.funcionamiento_hora_cierre)
+  const turno24 = es24Horas(farmacia.funcionamiento_hora_apertura, farmacia.funcionamiento_hora_cierre)
 
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
@@ -50,6 +57,11 @@ export default function PharmacyCard({ farmacia, distancia }: PharmacyCardProps)
         <span className="text-sm text-gray-600">
           {apertura} – {cierre}
         </span>
+        {turno24 && (
+          <span className="rounded-full bg-orange-50 px-2 py-0.5 text-xs font-semibold text-orange-600 border border-orange-100">
+            24 horas
+          </span>
+        )}
       </div>
 
       {/* Teléfono */}
