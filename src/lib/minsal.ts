@@ -4,14 +4,23 @@ const MINSAL_API_URL = 'https://midas.minsal.cl/farmacia_v2/WS/getLocalesTurnos.
 
 export async function fetchFarmacias(): Promise<Farmacia[]> {
   const res = await fetch(MINSAL_API_URL, {
-    next: { revalidate: 3600 }, // cache por 1 hora
+    next: { revalidate: 3600 },
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': 'application/json, text/plain, */*',
+      'Accept-Language': 'es-CL,es;q=0.9',
+      'Referer': 'https://farmaciadeturnochile.cl/',
+    },
   })
 
   if (!res.ok) {
-    throw new Error('Error al obtener datos de farmacias')
+    throw new Error(`Error MINSAL: ${res.status}`)
   }
 
   const data = await res.json()
+  if (!Array.isArray(data)) {
+    throw new Error('Respuesta inesperada de MINSAL')
+  }
   return data as Farmacia[]
 }
 

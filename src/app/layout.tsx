@@ -31,10 +31,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} antialiased`} suppressHydrationWarning>
         {children}
         <Script
-          async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5677105863319473"
           crossOrigin="anonymous"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
       </body>
     </html>
