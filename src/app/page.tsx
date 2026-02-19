@@ -148,18 +148,19 @@ export default function Home() {
         )}
       </main>
 
-      <footer className="max-w-2xl mx-auto px-4 py-8 text-center">
+      <footer className="max-w-2xl mx-auto px-4 py-8 text-center flex flex-col gap-1">
         <p className="text-xs text-gray-400">
           Datos proporcionados por{' '}
-          <a
-            href="https://datos.gob.cl"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-gray-600"
-          >
+          <a href="https://datos.gob.cl" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-600">
             MINSAL / datos.gob.cl
           </a>
           {' '}· Actualizado diariamente
+        </p>
+        <p className="text-xs text-gray-400">
+          <a href="/privacidad" className="underline hover:text-gray-600">
+            Política de Privacidad
+          </a>
+          {' '}· © 2026 Farmacia de Turno Chile
         </p>
       </footer>
     </div>
