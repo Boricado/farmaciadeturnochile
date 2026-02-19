@@ -4,6 +4,7 @@ import { useState, lazy, Suspense } from 'react'
 import { Pill, ListFilter, Map as MapIcon } from 'lucide-react'
 import SearchForm from '@/components/SearchForm'
 import PharmacyCard from '@/components/PharmacyCard'
+import AdBanner from '@/components/AdBanner'
 import { Farmacia } from '@/lib/types'
 
 const PharmacyMap = lazy(() => import('@/components/PharmacyMap'))
@@ -70,9 +71,7 @@ export default function Home() {
       <main className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
 
         {/* Banner publicidad superior */}
-        <div className="w-full h-16 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl flex items-center justify-center border border-dashed border-gray-300">
-          <span className="text-xs text-gray-400 font-medium">Publicidad</span>
-        </div>
+        <AdBanner slot="SLOT_SUPERIOR" format="horizontal" />
 
         {/* Formulario de búsqueda */}
         <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
@@ -137,8 +136,8 @@ export default function Home() {
                       <div key={f.local_id}>
                         <PharmacyCard farmacia={f} distancia={f.distancia} />
                         {(i + 1) % 5 === 0 && i < farmacias.length - 1 && (
-                          <div className="w-full h-14 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl flex items-center justify-center border border-dashed border-gray-300 mt-3">
-                            <span className="text-xs text-gray-400 font-medium">Publicidad</span>
+                          <div className="mt-3">
+                            <AdBanner slot="SLOT_MEDIO" format="rectangle" />
                           </div>
                         )}
                       </div>
@@ -164,9 +163,7 @@ export default function Home() {
         )}
 
         {searched && farmacias.length > 0 && (
-          <div className="w-full h-20 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl flex items-center justify-center border border-dashed border-gray-300">
-            <span className="text-xs text-gray-400 font-medium">Publicidad</span>
-          </div>
+          <AdBanner slot="SLOT_INFERIOR" format="auto" />
         )}
       </main>
 
