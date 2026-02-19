@@ -52,7 +52,7 @@ export default function Home() {
       <main className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
 
         {/* Banner publicidad superior */}
-        <AdBanner slot="SLOT_SUPERIOR" format="horizontal" />
+        <AdBanner slot="6956129152" format="horizontal" />
 
         {/* Formulario de búsqueda */}
         <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
@@ -118,7 +118,7 @@ export default function Home() {
                         <PharmacyCard farmacia={f} distancia={'distancia' in f ? (f as { distancia: number }).distancia : undefined} />
                         {(i + 1) % 5 === 0 && i < farmacias.length - 1 && (
                           <div className="mt-3">
-                            <AdBanner slot="SLOT_MEDIO" format="rectangle" />
+                            <AdBanner slot="3144441884" format="rectangle" />
                           </div>
                         )}
                       </div>
@@ -144,7 +144,7 @@ export default function Home() {
         )}
 
         {searched && farmacias.length > 0 && (
-          <AdBanner slot="SLOT_INFERIOR" format="auto" />
+          <AdBanner slot="3727330582" format="auto" />
         )}
       </main>
 
