@@ -13,8 +13,16 @@ function formatHora(hora: string): string {
 
 function es24Horas(apertura: string, cierre: string): boolean {
   if (!apertura || !cierre) return false
-  // Cierre menor que apertura significa que cruza la medianoche (turno nocturno 24h)
-  return cierre < apertura
+  const [ah, am] = apertura.split(':').map(Number)
+  const [ch, cm] = cierre.split(':').map(Number)
+  const aperturaMin = ah * 60 + am
+  const cierreMin = ch * 60 + cm
+  // Duración real en minutos (considerando que puede cruzar medianoche)
+  const duracion = cierreMin >= aperturaMin
+    ? cierreMin - aperturaMin
+    : 1440 - aperturaMin + cierreMin
+  // Solo es 24h si el turno dura 23 horas o más
+  return duracion >= 23 * 60
 }
 
 export default function PharmacyCard({ farmacia, distancia }: PharmacyCardProps) {
