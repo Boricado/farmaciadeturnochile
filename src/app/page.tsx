@@ -51,9 +51,6 @@ export default function Home() {
 
       <main className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
 
-        {/* Banner publicidad superior */}
-        <AdBanner slot="6956129152" format="horizontal" />
-
         {/* Formulario de búsqueda */}
         <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <h2 className="font-semibold text-gray-800 mb-4 text-base">
@@ -61,6 +58,41 @@ export default function Home() {
           </h2>
           <SearchForm onSearch={handleSearch} onNearby={handleNearby} loading={loading} />
         </section>
+
+        {/* Info inicial (visible antes de buscar) */}
+        {!searched && (
+          <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+            <h2 className="font-semibold text-gray-800 mb-3 text-base">¿Cómo funciona?</h2>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">📍</span>
+                <div>
+                  <p className="text-sm font-medium text-gray-800">Búsqueda por ubicación</p>
+                  <p className="text-sm text-gray-500">Selecciona tu región y comuna, o usa tu ubicación GPS para encontrar la farmacia más cercana.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">🔄</span>
+                <div>
+                  <p className="text-sm font-medium text-gray-800">Datos actualizados cada día</p>
+                  <p className="text-sm text-gray-500">La información proviene directamente de FARMANET, el sistema oficial del Ministerio de Salud de Chile.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">🗺️</span>
+                <div>
+                  <p className="text-sm font-medium text-gray-800">Navega fácilmente</p>
+                  <p className="text-sm text-gray-500">Desde cada resultado puedes ir directo a Google Maps o Waze para llegar sin complicaciones.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Banner publicidad — solo con resultados */}
+        {searched && farmacias.length > 0 && (
+          <AdBanner slot="6956129152" format="horizontal" />
+        )}
 
         {/* Resultados */}
         {searched && (
