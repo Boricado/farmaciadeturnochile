@@ -31,10 +31,36 @@ export default function RootLayout({
       <body className={`${geistSans.variable} antialiased`} suppressHydrationWarning>
         {children}
         <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-PJQTGJCQT4"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-PJQTGJCQT4');
+          `}
+        </Script>
+        <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5677105863319473"
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
+        <Script
+          src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"
+          strategy="afterInteractive"
+        />
+        <Script id="kofi-init" strategy="afterInteractive">
+          {`
+            kofiWidgetOverlay.draw('farmaciadeturnochile', {
+              'type': 'floating-chat',
+              'floating-chat.donateButton.text': 'Apóyanos',
+              'floating-chat.donateButton.background-color': '#16a34a',
+              'floating-chat.donateButton.text-color': '#fff'
+            });
+          `}
+        </Script>
       </body>
     </html>
   );
