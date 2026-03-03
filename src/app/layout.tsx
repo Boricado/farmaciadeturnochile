@@ -47,18 +47,21 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
-        <Script
-          src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"
-          strategy="afterInteractive"
-        />
-        <Script id="kofi-init" strategy="afterInteractive">
+        <Script id="kofi-widget" strategy="afterInteractive">
           {`
-            kofiWidgetOverlay.draw('farmaciadeturnochile', {
-              'type': 'floating-chat',
-              'floating-chat.donateButton.text': 'Apóyanos',
-              'floating-chat.donateButton.background-color': '#16a34a',
-              'floating-chat.donateButton.text-color': '#fff'
-            });
+            (function() {
+              var s = document.createElement('script');
+              s.src = 'https://storage.ko-fi.com/cdn/scripts/overlay-widget.js';
+              s.onload = function() {
+                kofiWidgetOverlay.draw('farmaciadeturnochile', {
+                  'type': 'floating-chat',
+                  'floating-chat.donateButton.text': 'Apóyanos',
+                  'floating-chat.donateButton.background-color': '#16a34a',
+                  'floating-chat.donateButton.text-color': '#fff'
+                });
+              };
+              document.head.appendChild(s);
+            })();
           `}
         </Script>
       </body>
