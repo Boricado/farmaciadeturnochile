@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import Script from "next/script";
+import DonacionButton from "@/components/DonacionButton";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,6 +31,7 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${geistSans.variable} antialiased`} suppressHydrationWarning>
         {children}
+        <DonacionButton />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-PJQTGJCQT4"
           strategy="afterInteractive"
@@ -42,11 +44,14 @@ export default function RootLayout({
             gtag('config', 'G-PJQTGJCQT4');
           `}
         </Script>
+        {/* PUBLICIDAD — desactivada temporalmente
         <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5677105863319473"
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
+        */}
+        {/* KO-FI — reemplazado por Mercado Pago
         <Script id="kofi-widget" strategy="afterInteractive">
           {`
             (function() {
@@ -64,6 +69,7 @@ export default function RootLayout({
             })();
           `}
         </Script>
+        */}
       </body>
     </html>
   );

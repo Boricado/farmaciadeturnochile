@@ -5,7 +5,7 @@ import { lazy, Suspense } from 'react'
 import { Pill, ListFilter, Map as MapIcon } from 'lucide-react'
 import SearchForm from '@/components/SearchForm'
 import PharmacyCard from '@/components/PharmacyCard'
-import AdBanner from '@/components/AdBanner'
+// import AdBanner from '@/components/AdBanner' // PUBLICIDAD — desactivada temporalmente
 import { useBuscarFarmacias } from '@/lib/useMinsal'
 
 const PharmacyMap = lazy(() => import('@/components/PharmacyMap'))
@@ -89,10 +89,11 @@ export default function Home() {
           </section>
         )}
 
-        {/* Banner publicidad — solo con resultados */}
+        {/* Banner publicidad — desactivado temporalmente
         {searched && farmacias.length > 0 && (
           <AdBanner slot="6956129152" format="horizontal" />
         )}
+        */}
 
         {/* Resultados */}
         {searched && (
@@ -148,11 +149,13 @@ export default function Home() {
                     {farmacias.map((f, i) => (
                       <div key={f.local_id}>
                         <PharmacyCard farmacia={f} distancia={'distancia' in f ? (f as { distancia: number }).distancia : undefined} />
+                        {/* Banner publicidad — desactivado temporalmente
                         {(i + 1) % 5 === 0 && i < farmacias.length - 1 && (
                           <div className="mt-3">
                             <AdBanner slot="3144441884" format="rectangle" />
                           </div>
                         )}
+                        */}
                       </div>
                     ))}
                   </div>
@@ -175,9 +178,11 @@ export default function Home() {
           </>
         )}
 
+        {/* Banner publicidad — desactivado temporalmente
         {searched && farmacias.length > 0 && (
           <AdBanner slot="3727330582" format="auto" />
         )}
+        */}
       </main>
 
       <footer className="max-w-2xl mx-auto px-4 py-8 text-center flex flex-col gap-1">
