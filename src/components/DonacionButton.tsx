@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Heart } from 'lucide-react'
 
 export default function DonacionButton() {
   const [open, setOpen] = useState(false)
@@ -28,7 +29,7 @@ export default function DonacionButton() {
         className="bg-green-600 text-white px-5 py-3 rounded-full font-semibold shadow-lg hover:bg-green-700 transition flex items-center gap-2 text-sm"
         aria-label="Apoyar el proyecto"
       >
-        <span>💚</span>
+        <Heart className="h-4 w-4 fill-white stroke-none" />
         Apóyanos
       </button>
     </div>
