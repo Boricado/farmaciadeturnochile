@@ -8,16 +8,14 @@ export default function Icon() {
     (
       <div
         style={{
-          background: '#16a34a',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          borderRadius: '6px',
         }}
       >
-        <span style={{ color: 'white', fontSize: '24px', fontWeight: '900', lineHeight: 1 }}>+</span>
+        <span style={{ fontSize: '28px', lineHeight: 1 }}>💌</span>
       </div>
     ),
     { ...size }
