@@ -3,14 +3,18 @@ import Link from 'next/link'
 import { Pill, ArrowLeft } from 'lucide-react'
 import type { Metadata } from 'next'
 import PharmacyCard from '@/components/PharmacyCard'
+import ShareButton from '@/components/ShareButton'
 import {
   fetchFarmacias,
   filtrarFarmacias,
+  getComunas,
   REGIONES_NOMBRES,
   SLUG_A_REGION,
 } from '@/lib/minsal'
 
 export const revalidate = 3600
+
+const BASE = 'https://farmaciadeturnochile.cl'
 
 export async function generateMetadata({
   params,
@@ -29,16 +33,32 @@ export async function generateMetadata({
 
 export default async function RegionPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ region: string }>
+  searchParams: Promise<{ comuna?: string }>
 }) {
   const { region: slug } = await params
+  const { comuna: comunaId } = await searchParams
+
   const regionId = SLUG_A_REGION[slug]
   if (!regionId) notFound()
 
-  const nombre = REGIONES_NOMBRES[regionId]
+  const regionNombre = REGIONES_NOMBRES[regionId]
   const todas = await fetchFarmacias()
-  const farmacias = filtrarFarmacias(todas, regionId)
+  const farmacias = filtrarFarmacias(todas, regionId, comunaId)
+
+  const comunaNombre = comunaId
+    ? getComunas(todas, regionId).find((c) => c.id === comunaId)?.nombre
+    : undefined
+
+  const titulo = comunaNombre
+    ? `Farmacia de turno en ${comunaNombre}`
+    : `Farmacia de turno en ${regionNombre}`
+
+  const shareUrl = comunaId
+    ? `${BASE}/turno/${slug}?comuna=${comunaId}`
+    : `${BASE}/turno/${slug}`
 
   const today = new Date().toLocaleDateString('es-CL', {
     weekday: 'long',
@@ -69,22 +89,33 @@ export default async function RegionPage({
           className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 w-fit"
         >
           <ArrowLeft className="h-4 w-4" />
-          Buscar por comuna
+          Nueva búsqueda
         </Link>
 
-        <section>
-          <h2 className="text-xl font-bold text-gray-900">{nombre}</h2>
-          <p className="text-sm text-gray-500 mt-1">
-            {farmacias.length} farmacia{farmacias.length !== 1 ? 's' : ''} de turno hoy
-          </p>
+        <section className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">{titulo}</h2>
+            {comunaNombre && (
+              <p className="text-sm text-gray-400 mt-0.5">{regionNombre}</p>
+            )}
+            <p className="text-sm text-gray-500 mt-1">
+              {farmacias.length} farmacia{farmacias.length !== 1 ? 's' : ''} de turno hoy
+            </p>
+          </div>
+          <ShareButton
+            title={titulo}
+            text={`${titulo} — ${farmacias.length} farmacia${farmacias.length !== 1 ? 's' : ''} de turno hoy`}
+            url={shareUrl}
+          />
         </section>
 
         {farmacias.length === 0 ? (
           <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
             <Pill className="h-12 w-12 text-gray-200 mx-auto mb-3" />
             <p className="text-gray-500 font-medium">
-              No hay farmacias de turno en esta región hoy
+              No hay farmacias de turno para esta búsqueda hoy
             </p>
+            <p className="text-gray-400 text-sm mt-1">Intenta con otra región o comuna</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">

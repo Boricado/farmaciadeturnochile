@@ -2,16 +2,19 @@
 
 import { useState } from 'react'
 import { lazy, Suspense } from 'react'
+import { useRouter } from 'next/navigation'
 import { Pill, ListFilter, Map as MapIcon } from 'lucide-react'
 import SearchForm from '@/components/SearchForm'
 import PharmacyCard from '@/components/PharmacyCard'
 // import AdBanner from '@/components/AdBanner' // PUBLICIDAD — desactivada temporalmente
 import { useBuscarFarmacias } from '@/lib/useMinsal'
+import { REGIONES_SLUGS } from '@/lib/minsal'
 
 const PharmacyMap = lazy(() => import('@/components/PharmacyMap'))
 
 export default function Home() {
-  const { farmacias, loading, searched, buscar, buscarCercanas } = useBuscarFarmacias()
+  const router = useRouter()
+  const { farmacias, loading, searched, buscarCercanas } = useBuscarFarmacias()
   const [view, setView] = useState<'lista' | 'mapa'>('lista')
   const [modoGeo, setModoGeo] = useState(false)
 
@@ -23,8 +26,10 @@ export default function Home() {
   })
 
   const handleSearch = (region: string, comuna: string) => {
-    setModoGeo(false)
-    buscar(region, comuna || undefined)
+    const slug = REGIONES_SLUGS[region]
+    if (!slug) return
+    const url = comuna ? `/turno/${slug}?comuna=${comuna}` : `/turno/${slug}`
+    router.push(url)
   }
 
   const handleNearby = (lat: number, lng: number) => {
