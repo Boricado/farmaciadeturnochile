@@ -7,15 +7,10 @@ import {
   fetchFarmacias,
   filtrarFarmacias,
   REGIONES_NOMBRES,
-  REGIONES_SLUGS,
   SLUG_A_REGION,
 } from '@/lib/minsal'
 
 export const revalidate = 3600
-
-export async function generateStaticParams() {
-  return Object.values(REGIONES_SLUGS).map((slug) => ({ region: slug }))
-}
 
 export async function generateMetadata({
   params,
