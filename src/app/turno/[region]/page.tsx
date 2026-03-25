@@ -45,12 +45,20 @@ export default async function RegionPage({
   if (!regionId) notFound()
 
   const regionNombre = REGIONES_NOMBRES[regionId]
-  const todas = await fetchFarmacias()
-  const farmacias = filtrarFarmacias(todas, regionId, comunaId)
 
-  const comunaNombre = comunaId
-    ? getComunas(todas, regionId).find((c) => c.id === comunaId)?.nombre
-    : undefined
+  let farmacias: Awaited<ReturnType<typeof fetchFarmacias>> = []
+  let comunaNombre: string | undefined
+  let errorMinsal = false
+
+  try {
+    const todas = await fetchFarmacias()
+    farmacias = filtrarFarmacias(todas, regionId, comunaId)
+    comunaNombre = comunaId
+      ? getComunas(todas, regionId).find((c) => c.id === comunaId)?.nombre
+      : undefined
+  } catch {
+    errorMinsal = true
+  }
 
   const titulo = comunaNombre
     ? `Farmacia de turno en ${comunaNombre}`
@@ -109,7 +117,15 @@ export default async function RegionPage({
           />
         </section>
 
-        {farmacias.length === 0 ? (
+        {errorMinsal ? (
+          <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
+            <Pill className="h-12 w-12 text-gray-200 mx-auto mb-3" />
+            <p className="text-gray-500 font-medium">
+              No se pudo conectar con MINSAL en este momento
+            </p>
+            <p className="text-gray-400 text-sm mt-1">Intenta nuevamente en unos minutos</p>
+          </div>
+        ) : farmacias.length === 0 ? (
           <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
             <Pill className="h-12 w-12 text-gray-200 mx-auto mb-3" />
             <p className="text-gray-500 font-medium">
