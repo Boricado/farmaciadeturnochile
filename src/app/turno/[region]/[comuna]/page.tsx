@@ -7,34 +7,39 @@ import { REGIONES_NOMBRES, SLUG_A_REGION } from '@/lib/minsal'
 
 const BASE = 'https://farmaciadeturnochile.cl'
 
+function unslugged(slug: string): string {
+  return slug.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+}
+
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ region: string }>
+  params: Promise<{ region: string; comuna: string }>
 }): Promise<Metadata> {
-  const { region: slug } = await params
-  const regionId = SLUG_A_REGION[slug]
+  const { region: regionSlug, comuna: comunaSlug } = await params
+  const regionId = SLUG_A_REGION[regionSlug]
   if (!regionId) return {}
-  const nombre = REGIONES_NOMBRES[regionId]
+  const regionNombre = REGIONES_NOMBRES[regionId]
+  const comunaNombre = unslugged(comunaSlug)
   return {
-    title: `Farmacia de Turno ${nombre} | Hoy`,
-    description: `Encuentra las farmacias de turno abiertas hoy en ${nombre}, Chile. Datos actualizados desde MINSAL.`,
+    title: `Farmacia de Turno ${comunaNombre} | Hoy`,
+    description: `Encuentra las farmacias de turno abiertas hoy en ${comunaNombre}, ${regionNombre}, Chile. Datos actualizados desde MINSAL.`,
   }
 }
 
-export default async function RegionPage({
+export default async function ComunaPage({
   params,
 }: {
-  params: Promise<{ region: string }>
+  params: Promise<{ region: string; comuna: string }>
 }) {
-  const { region: slug } = await params
+  const { region: regionSlug, comuna: comunaSlug } = await params
 
-  const regionId = SLUG_A_REGION[slug]
+  const regionId = SLUG_A_REGION[regionSlug]
   if (!regionId) notFound()
 
   const regionNombre = REGIONES_NOMBRES[regionId]
-  const shareUrl = `${BASE}/turno/${slug}`
-  const titulo = `Farmacia de turno en ${regionNombre}`
+  const shareUrl = `${BASE}/turno/${regionSlug}/${comunaSlug}`
+  const titulo = `Farmacia de turno en ${unslugged(comunaSlug)}`
 
   const today = new Date().toLocaleDateString('es-CL', {
     weekday: 'long',
@@ -61,16 +66,17 @@ export default async function RegionPage({
 
       <main className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
         <Link
-          href="/"
+          href={`/turno/${regionSlug}`}
           className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 w-fit"
         >
           <ArrowLeft className="h-4 w-4" />
-          Nueva búsqueda
+          {regionNombre}
         </Link>
 
         <RegionFarmacias
           regionId={regionId}
-          regionSlug={slug}
+          regionSlug={regionSlug}
+          comunaSlug={comunaSlug}
           titulo={titulo}
           regionNombre={regionNombre}
           shareUrl={shareUrl}

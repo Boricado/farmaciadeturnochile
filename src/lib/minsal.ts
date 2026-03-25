@@ -65,6 +65,17 @@ export function filtrarFarmacias(
   })
 }
 
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim()
+}
+
 // Slugs URL para cada región
 export const REGIONES_SLUGS: Record<string, string> = {
   '1':  'arica-y-parinacota',

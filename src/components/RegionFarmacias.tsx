@@ -1,32 +1,42 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Loader2, Pill } from 'lucide-react'
+import { Loader2, Pill, ChevronRight } from 'lucide-react'
+import Link from 'next/link'
 import PharmacyCard from '@/components/PharmacyCard'
 import ShareButton from '@/components/ShareButton'
-import { filtrarFarmacias, farmaciasNearby } from '@/lib/minsal'
+import { filtrarFarmacias, getComunas, slugify } from '@/lib/minsal'
 import type { Farmacia } from '@/lib/types'
 
 const MINSAL_URL = 'https://midas.minsal.cl/farmacia_v2/WS/getLocalesTurnos.php'
 
+interface ComunaLink {
+  id: string
+  nombre: string
+  slug: string
+  total: number
+}
+
 interface RegionFarmaciasProps {
   regionId: string
-  comunaId?: string
+  regionSlug: string
+  comunaSlug?: string
   titulo: string
   regionNombre: string
-  comunaNombre?: string
   shareUrl: string
 }
 
 export default function RegionFarmacias({
   regionId,
-  comunaId,
-  titulo,
+  regionSlug,
+  comunaSlug,
+  titulo: tituloProp,
   regionNombre,
-  comunaNombre,
   shareUrl,
 }: RegionFarmaciasProps) {
   const [farmacias, setFarmacias] = useState<Farmacia[]>([])
+  const [comunas, setComunas] = useState<ComunaLink[]>([])
+  const [titulo, setTitulo] = useState(tituloProp)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
@@ -34,11 +44,33 @@ export default function RegionFarmacias({
     fetch(MINSAL_URL)
       .then((r) => r.json())
       .then((data: Farmacia[]) => {
-        setFarmacias(filtrarFarmacias(data, regionId, comunaId))
+        const todasRegion = filtrarFarmacias(data, regionId)
+
+        if (comunaSlug) {
+          const comunasRegion = getComunas(data, regionId)
+          const match = comunasRegion.find((c) => slugify(c.nombre) === comunaSlug)
+          if (match) {
+            setTitulo(`Farmacia de turno en ${match.nombre}`)
+            setFarmacias(filtrarFarmacias(data, regionId, match.id))
+          }
+        } else {
+          setFarmacias(todasRegion)
+
+          // Armar lista de comunas con su conteo para mostrar links
+          const comunasRegion = getComunas(data, regionId)
+          setComunas(
+            comunasRegion.map((c) => ({
+              id: c.id,
+              nombre: c.nombre,
+              slug: slugify(c.nombre),
+              total: todasRegion.filter((f) => f.fk_comuna === c.id).length,
+            }))
+          )
+        }
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false))
-  }, [regionId, comunaId])
+  }, [regionId, comunaSlug])
 
   if (loading) {
     return (
@@ -64,7 +96,7 @@ export default function RegionFarmacias({
       <section className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-gray-900">{titulo}</h2>
-          {comunaNombre && (
+          {comunaSlug && (
             <p className="text-sm text-gray-400 mt-0.5">{regionNombre}</p>
           )}
           <p className="text-sm text-gray-500 mt-1">
@@ -92,6 +124,30 @@ export default function RegionFarmacias({
             <PharmacyCard key={f.local_id} farmacia={f} />
           ))}
         </div>
+      )}
+
+      {/* Lista de comunas (solo en vista de región completa) */}
+      {!comunaSlug && comunas.length > 0 && (
+        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-100">
+            <h3 className="font-semibold text-gray-800 text-sm">Ver por comuna</h3>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {comunas.map((c) => (
+              <Link
+                key={c.id}
+                href={`/turno/${regionSlug}/${c.slug}`}
+                className="flex items-center justify-between px-5 py-3 text-sm text-gray-700 hover:text-green-700 hover:bg-green-50 transition group"
+              >
+                <span>{c.nombre}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-400">{c.total} farmacia{c.total !== 1 ? 's' : ''}</span>
+                  <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-green-500 transition" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
     </>
   )
