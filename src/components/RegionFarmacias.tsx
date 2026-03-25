@@ -110,23 +110,7 @@ export default function RegionFarmacias({
         />
       </section>
 
-      {farmacias.length === 0 ? (
-        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
-          <Pill className="h-12 w-12 text-gray-200 mx-auto mb-3" />
-          <p className="text-gray-500 font-medium">
-            No hay farmacias de turno para esta búsqueda hoy
-          </p>
-          <p className="text-gray-400 text-sm mt-1">Intenta con otra región o comuna</p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          {farmacias.map((f) => (
-            <PharmacyCard key={f.local_id} farmacia={f} />
-          ))}
-        </div>
-      )}
-
-      {/* Lista de comunas (solo en vista de región completa) */}
+      {/* Lista de comunas (solo en vista de región completa, va primero) */}
       {!comunaSlug && comunas.length > 0 && (
         <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-100">
@@ -148,6 +132,22 @@ export default function RegionFarmacias({
             ))}
           </div>
         </section>
+      )}
+
+      {farmacias.length === 0 ? (
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
+          <Pill className="h-12 w-12 text-gray-200 mx-auto mb-3" />
+          <p className="text-gray-500 font-medium">
+            No hay farmacias de turno para esta búsqueda hoy
+          </p>
+          <p className="text-gray-400 text-sm mt-1">Intenta con otra región o comuna</p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {farmacias.map((f) => (
+            <PharmacyCard key={f.local_id} farmacia={f} />
+          ))}
+        </div>
       )}
     </>
   )

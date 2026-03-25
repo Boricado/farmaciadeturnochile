@@ -1,4 +1,4 @@
-import { Phone, MapPin, Clock, Navigation } from 'lucide-react'
+import { Phone, MapPin, Clock, Navigation, Share2 } from 'lucide-react'
 import { Farmacia } from '@/lib/types'
 
 interface PharmacyCardProps {
@@ -33,6 +33,15 @@ export default function PharmacyCard({ farmacia, distancia }: PharmacyCardProps)
   const apertura = formatHora(farmacia.funcionamiento_hora_apertura)
   const cierre = formatHora(farmacia.funcionamiento_hora_cierre)
   const turno24 = es24Horas(farmacia.funcionamiento_hora_apertura, farmacia.funcionamiento_hora_cierre)
+
+  const handleShare = async () => {
+    const text = `${farmacia.local_nombre}\n${farmacia.local_direccion}, ${farmacia.comuna_nombre}\nHorario: ${apertura} – ${cierre}`
+    if (navigator.share) {
+      await navigator.share({ title: farmacia.local_nombre, text, url: mapsUrl }).catch(() => {})
+    } else {
+      await navigator.clipboard.writeText(`${text}\n${mapsUrl}`)
+    }
+  }
 
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
@@ -102,6 +111,12 @@ export default function PharmacyCard({ farmacia, distancia }: PharmacyCardProps)
           <Navigation className="h-4 w-4" />
           Waze
         </a>
+        <button
+          onClick={handleShare}
+          className="flex items-center justify-center gap-1.5 rounded-xl bg-gray-100 px-3 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-200 transition"
+        >
+          <Share2 className="h-4 w-4" />
+        </button>
       </div>
     </div>
   )
