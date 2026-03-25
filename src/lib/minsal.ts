@@ -65,6 +65,31 @@ export function filtrarFarmacias(
   })
 }
 
+// Slugs URL para cada región
+export const REGIONES_SLUGS: Record<string, string> = {
+  '1':  'arica-y-parinacota',
+  '2':  'tarapaca',
+  '3':  'antofagasta',
+  '4':  'atacama',
+  '5':  'coquimbo',
+  '6':  'valparaiso',
+  '7':  'region-metropolitana-de-santiago',
+  '8':  'libertador-bernardo-ohiggins',
+  '9':  'maule',
+  '10': 'biobio',
+  '11': 'araucania',
+  '12': 'los-rios',
+  '13': 'los-lagos',
+  '14': 'aysen',
+  '15': 'magallanes',
+  '16': 'nuble',
+}
+
+// Inverso: slug → id de región
+export const SLUG_A_REGION: Record<string, string> = Object.fromEntries(
+  Object.entries(REGIONES_SLUGS).map(([id, slug]) => [slug, id])
+)
+
 // IDs según el orden interno de MINSAL (verificado desde la API real)
 export const REGIONES_NOMBRES: Record<string, string> = {
   '1':  'Región de Arica y Parinacota',
