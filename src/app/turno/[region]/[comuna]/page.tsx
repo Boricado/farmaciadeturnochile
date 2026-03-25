@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import { Pill, ArrowLeft } from 'lucide-react'
+import { Pill } from 'lucide-react'
 import type { Metadata } from 'next'
 import RegionFarmacias from '@/components/RegionFarmacias'
+import Breadcrumb from '@/components/Breadcrumb'
 import { REGIONES_NOMBRES, SLUG_A_REGION } from '@/lib/minsal'
 
 const BASE = 'https://farmaciadeturnochile.cl'
@@ -65,13 +65,13 @@ export default async function ComunaPage({
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
-        <Link
-          href={`/turno/${regionSlug}`}
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 w-fit"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          {regionNombre}
-        </Link>
+        <Breadcrumb
+          items={[
+            { label: 'Inicio', href: '/' },
+            { label: regionNombre, href: `/turno/${regionSlug}` },
+            { label: unslugged(comunaSlug) },
+          ]}
+        />
 
         <RegionFarmacias
           regionId={regionId}
