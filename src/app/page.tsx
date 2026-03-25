@@ -2,21 +2,22 @@
 
 import { useState } from 'react'
 import { lazy, Suspense } from 'react'
-import { useRouter } from 'next/navigation'
-import { Pill, ListFilter, Map as MapIcon } from 'lucide-react'
+import Link from 'next/link'
+import { Pill, ListFilter, Map as MapIcon, ChevronRight } from 'lucide-react'
 import SearchForm from '@/components/SearchForm'
 import PharmacyCard from '@/components/PharmacyCard'
-// import AdBanner from '@/components/AdBanner' // PUBLICIDAD — desactivada temporalmente
 import { useBuscarFarmacias } from '@/lib/useMinsal'
-import { REGIONES_SLUGS } from '@/lib/minsal'
+import { REGIONES_NOMBRES, REGIONES_SLUGS } from '@/lib/minsal'
 
 const PharmacyMap = lazy(() => import('@/components/PharmacyMap'))
 
+type Tab = 'buscar' | 'regiones'
+
 export default function Home() {
-  const router = useRouter()
-  const { farmacias, loading, searched, buscarCercanas } = useBuscarFarmacias()
+  const { farmacias, loading, searched, buscar, buscarCercanas } = useBuscarFarmacias()
   const [view, setView] = useState<'lista' | 'mapa'>('lista')
   const [modoGeo, setModoGeo] = useState(false)
+  const [tab, setTab] = useState<Tab>('buscar')
 
   const today = new Date().toLocaleDateString('es-CL', {
     weekday: 'long',
@@ -26,10 +27,8 @@ export default function Home() {
   })
 
   const handleSearch = (region: string, comuna: string) => {
-    const slug = REGIONES_SLUGS[region]
-    if (!slug) return
-    const url = comuna ? `/turno/${slug}?comuna=${comuna}` : `/turno/${slug}`
-    router.push(url)
+    setModoGeo(false)
+    buscar(region, comuna || undefined)
   }
 
   const handleNearby = (lat: number, lng: number) => {
@@ -56,16 +55,59 @@ export default function Home() {
 
       <main className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
 
-        {/* Formulario de búsqueda */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-          <h2 className="font-semibold text-gray-800 mb-4 text-base">
-            ¿Dónde necesitas una farmacia?
-          </h2>
-          <SearchForm onSearch={handleSearch} onNearby={handleNearby} loading={loading} />
+        {/* Formulario de búsqueda con pestañas */}
+        <section className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Pestañas */}
+          <div className="flex border-b border-gray-100">
+            <button
+              onClick={() => setTab('buscar')}
+              className={`flex-1 py-3 text-sm font-semibold transition ${
+                tab === 'buscar'
+                  ? 'text-green-700 border-b-2 border-green-600'
+                  : 'text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              Buscar
+            </button>
+            <button
+              onClick={() => setTab('regiones')}
+              className={`flex-1 py-3 text-sm font-semibold transition ${
+                tab === 'regiones'
+                  ? 'text-green-700 border-b-2 border-green-600'
+                  : 'text-gray-400 hover:text-gray-600'
+              }`}
+            >
+              Por Región
+            </button>
+          </div>
+
+          <div className="p-5">
+            {tab === 'buscar' ? (
+              <>
+                <h2 className="font-semibold text-gray-800 mb-4 text-base">
+                  ¿Dónde necesitas una farmacia?
+                </h2>
+                <SearchForm onSearch={handleSearch} onNearby={handleNearby} loading={loading} />
+              </>
+            ) : (
+              <div className="flex flex-col divide-y divide-gray-50">
+                {Object.entries(REGIONES_NOMBRES).map(([id, nombre]) => (
+                  <Link
+                    key={id}
+                    href={`/turno/${REGIONES_SLUGS[id]}`}
+                    className="flex items-center justify-between py-3 text-sm text-gray-700 hover:text-green-700 transition group"
+                  >
+                    <span>{nombre}</span>
+                    <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-green-500 transition" />
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </section>
 
         {/* Info inicial (visible antes de buscar) */}
-        {!searched && (
+        {!searched && tab === 'buscar' && (
           <section className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <h2 className="font-semibold text-gray-800 mb-3 text-base">¿Cómo funciona?</h2>
             <div className="flex flex-col gap-3">
@@ -93,12 +135,6 @@ export default function Home() {
             </div>
           </section>
         )}
-
-        {/* Banner publicidad — desactivado temporalmente
-        {searched && farmacias.length > 0 && (
-          <AdBanner slot="6956129152" format="horizontal" />
-        )}
-        */}
 
         {/* Resultados */}
         {searched && (
@@ -151,17 +187,8 @@ export default function Home() {
                 {/* Vista lista */}
                 {view === 'lista' && (
                   <div className="flex flex-col gap-3">
-                    {farmacias.map((f, i) => (
-                      <div key={f.local_id}>
-                        <PharmacyCard farmacia={f} distancia={'distancia' in f ? (f as { distancia: number }).distancia : undefined} />
-                        {/* Banner publicidad — desactivado temporalmente
-                        {(i + 1) % 5 === 0 && i < farmacias.length - 1 && (
-                          <div className="mt-3">
-                            <AdBanner slot="3144441884" format="rectangle" />
-                          </div>
-                        )}
-                        */}
-                      </div>
+                    {farmacias.map((f) => (
+                      <PharmacyCard key={f.local_id} farmacia={f} distancia={'distancia' in f ? (f as { distancia: number }).distancia : undefined} />
                     ))}
                   </div>
                 )}
@@ -183,11 +210,6 @@ export default function Home() {
           </>
         )}
 
-        {/* Banner publicidad — desactivado temporalmente
-        {searched && farmacias.length > 0 && (
-          <AdBanner slot="3727330582" format="auto" />
-        )}
-        */}
       </main>
 
       <footer className="max-w-2xl mx-auto px-4 py-8 text-center flex flex-col gap-1">

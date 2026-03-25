@@ -2,17 +2,8 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Pill, ArrowLeft } from 'lucide-react'
 import type { Metadata } from 'next'
-import PharmacyCard from '@/components/PharmacyCard'
-import ShareButton from '@/components/ShareButton'
-import {
-  fetchFarmacias,
-  filtrarFarmacias,
-  getComunas,
-  REGIONES_NOMBRES,
-  SLUG_A_REGION,
-} from '@/lib/minsal'
-
-export const revalidate = 3600
+import RegionFarmacias from '@/components/RegionFarmacias'
+import { REGIONES_NOMBRES, SLUG_A_REGION } from '@/lib/minsal'
 
 const BASE = 'https://farmaciadeturnochile.cl'
 
@@ -45,28 +36,12 @@ export default async function RegionPage({
   if (!regionId) notFound()
 
   const regionNombre = REGIONES_NOMBRES[regionId]
-
-  let farmacias: Awaited<ReturnType<typeof fetchFarmacias>> = []
-  let comunaNombre: string | undefined
-  let errorMinsal = false
-
-  try {
-    const todas = await fetchFarmacias()
-    farmacias = filtrarFarmacias(todas, regionId, comunaId)
-    comunaNombre = comunaId
-      ? getComunas(todas, regionId).find((c) => c.id === comunaId)?.nombre
-      : undefined
-  } catch {
-    errorMinsal = true
-  }
-
-  const titulo = comunaNombre
-    ? `Farmacia de turno en ${comunaNombre}`
-    : `Farmacia de turno en ${regionNombre}`
-
   const shareUrl = comunaId
     ? `${BASE}/turno/${slug}?comuna=${comunaId}`
     : `${BASE}/turno/${slug}`
+
+  // El título se muestra como placeholder hasta que el client component cargue el nombre de la comuna
+  const titulo = `Farmacia de turno en ${regionNombre}`
 
   const today = new Date().toLocaleDateString('es-CL', {
     weekday: 'long',
@@ -100,46 +75,13 @@ export default async function RegionPage({
           Nueva búsqueda
         </Link>
 
-        <section className="flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">{titulo}</h2>
-            {comunaNombre && (
-              <p className="text-sm text-gray-400 mt-0.5">{regionNombre}</p>
-            )}
-            <p className="text-sm text-gray-500 mt-1">
-              {farmacias.length} farmacia{farmacias.length !== 1 ? 's' : ''} de turno hoy
-            </p>
-          </div>
-          <ShareButton
-            title={titulo}
-            text={`${titulo} — ${farmacias.length} farmacia${farmacias.length !== 1 ? 's' : ''} de turno hoy`}
-            url={shareUrl}
-          />
-        </section>
-
-        {errorMinsal ? (
-          <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
-            <Pill className="h-12 w-12 text-gray-200 mx-auto mb-3" />
-            <p className="text-gray-500 font-medium">
-              No se pudo conectar con MINSAL en este momento
-            </p>
-            <p className="text-gray-400 text-sm mt-1">Intenta nuevamente en unos minutos</p>
-          </div>
-        ) : farmacias.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
-            <Pill className="h-12 w-12 text-gray-200 mx-auto mb-3" />
-            <p className="text-gray-500 font-medium">
-              No hay farmacias de turno para esta búsqueda hoy
-            </p>
-            <p className="text-gray-400 text-sm mt-1">Intenta con otra región o comuna</p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {farmacias.map((f) => (
-              <PharmacyCard key={f.local_id} farmacia={f} />
-            ))}
-          </div>
-        )}
+        <RegionFarmacias
+          regionId={regionId}
+          comunaId={comunaId}
+          titulo={titulo}
+          regionNombre={regionNombre}
+          shareUrl={shareUrl}
+        />
       </main>
 
       <footer className="max-w-2xl mx-auto px-4 py-8 text-center flex flex-col gap-1">
