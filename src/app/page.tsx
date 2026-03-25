@@ -7,7 +7,8 @@ import { Pill, ListFilter, Map as MapIcon, ChevronRight } from 'lucide-react'
 import SearchForm from '@/components/SearchForm'
 import PharmacyCard from '@/components/PharmacyCard'
 import { useBuscarFarmacias } from '@/lib/useMinsal'
-import { REGIONES_NOMBRES, REGIONES_SLUGS } from '@/lib/minsal'
+import { REGIONES_NOMBRES, REGIONES_SLUGS, slugify } from '@/lib/minsal'
+import ShareButton from '@/components/ShareButton'
 
 const PharmacyMap = lazy(() => import('@/components/PharmacyMap'))
 
@@ -18,6 +19,7 @@ export default function Home() {
   const [view, setView] = useState<'lista' | 'mapa'>('lista')
   const [modoGeo, setModoGeo] = useState(false)
   const [tab, setTab] = useState<Tab>('buscar')
+  const [shareUrl, setShareUrl] = useState<string | null>(null)
 
   const today = new Date().toLocaleDateString('es-CL', {
     weekday: 'long',
@@ -29,10 +31,19 @@ export default function Home() {
   const handleSearch = (region: string, comuna: string) => {
     setModoGeo(false)
     buscar(region, comuna || undefined)
+    const regionSlug = REGIONES_SLUGS[region]
+    if (regionSlug) {
+      setShareUrl(
+        comuna
+          ? `https://farmaciadeturnochile.cl/turno/${regionSlug}/${slugify(comuna)}`
+          : `https://farmaciadeturnochile.cl/turno/${regionSlug}`
+      )
+    }
   }
 
   const handleNearby = (lat: number, lng: number) => {
     setModoGeo(true)
+    setShareUrl(null)
     buscarCercanas(lat, lng)
   }
 
@@ -153,11 +164,20 @@ export default function Home() {
               <>
                 {/* Controles de resultados */}
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-600">
-                    {modoGeo
-                      ? `${farmacias.length} farmacias más cercanas`
-                      : `${farmacias.length} farmacia${farmacias.length !== 1 ? 's' : ''} de turno hoy`}
-                  </p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-sm font-medium text-gray-600">
+                      {modoGeo
+                        ? `${farmacias.length} farmacias más cercanas`
+                        : `${farmacias.length} farmacia${farmacias.length !== 1 ? 's' : ''} de turno hoy`}
+                    </p>
+                    {shareUrl && !modoGeo && (
+                      <ShareButton
+                        title="Farmacia de Turno Chile"
+                        text={`${farmacias.length} farmacia${farmacias.length !== 1 ? 's' : ''} de turno hoy`}
+                        url={shareUrl}
+                      />
+                    )}
+                  </div>
                   <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
                     <button
                       onClick={() => setView('lista')}
